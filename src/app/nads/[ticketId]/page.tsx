@@ -1,7 +1,8 @@
 import { nads } from "@/app/nads-data";
 import NotFound from "@/app/not-found";
 
-export default function NadDetail({params}: {params: {ticketId: string}}) {
+export default async function NadDetail(props: {params: Promise<{ticketId: string}>}) {
+  const params = await props.params;
 
   const nad = nads.find(nad => nad.ticketId === params.ticketId);
 

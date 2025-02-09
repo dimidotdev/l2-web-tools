@@ -7,7 +7,7 @@ export default function NadsList({ nads }: { nads: Nad[] }) {
       {nads.map(nad => (
         <Link key={nad.ticketId} href={`/nads/${nad.ticketId}`}
         passHref
-        className="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition duration-300"
+        className="bg-white rounded-lg p-4 hover:shadow-lg transition duration-300"
         >
           <h2 className="text-1xl font-bold">{nad.ticketId}</h2>
           <p>{nad.creationDate}</p>
