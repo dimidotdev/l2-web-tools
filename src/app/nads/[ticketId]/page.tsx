@@ -1,12 +1,12 @@
-import { nads } from "@/app/nads-data";
 import NotFound from "@/app/not-found";
 
 export default async function NadDetail(props: {params: Promise<{ticketId: string}>}) {
   const params = await props.params;
 
-  const nad = nads.find(nad => nad.ticketId === params.ticketId);
+  const response = await fetch(`${process.env.URL}/api/v1/nads/${params.ticketId}`);
+  const nad = await response.json();
 
-  if (!nad) return <NotFound />;
+  if (!nad.ticketId) return <NotFound />;
 
   return (
     <div className="container mx-auto p-8 bg-white shadow-lg rounded-lg flex flex-col items-center w-1/2">

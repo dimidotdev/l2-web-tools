@@ -1,21 +1,24 @@
 import { NextRequest } from "next/server";
-import { nads } from "@/app/nads-data";
+import { connectDB } from "@/app/api/db";
 
-export async function GET(request: NextRequest, params: Promise<{ ticketId: string }>) {
-  const { ticketId } = await params;
-  const nad = nads.find(nad => nad.ticketId === ticketId);
+type Params = {
+  ticketId: string;
+};
+
+export async function GET(request: NextRequest, props: { params: Promise<Params> }) {
+  const params = (await props.params).ticketId;
+  const { db } = await connectDB();
+  const nad = await db.collection("quicknads").findOne({ ticketId: params });
+
   if (!nad) {
     return new Response(JSON.stringify({ message: "NAD not found" }), {
-      headers: {
-        "Content-Type": "application/json",
-      },
       status: 404,
     });
   }
   return new Response(JSON.stringify(nad), {
+    status: 200,
     headers: {
       "Content-Type": "application/json",
-    },
-    status: 200,
+    }
   });
 }
