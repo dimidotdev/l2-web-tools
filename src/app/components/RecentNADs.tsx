@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import type { NAD } from '@/app/types/nad';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+
 export const RecentNADs = () => {
   const [recentNADs, setRecentNADs] = useState<NAD[]>([]);
   const [isLoading, setIsLoading] = useState(true);

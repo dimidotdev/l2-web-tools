@@ -4,6 +4,8 @@ import { getNads } from '../lib/services/nadServices';
 import { NAD } from '../types/nad';
 import NadSkeleton from '../components/NADSkeleton';
 
+export const dynamic = 'force-dynamic';
+
 function NadGrid({ nads }: { nads: NAD[] }) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">

@@ -1,5 +1,7 @@
 import { RecentNADs } from "./components/RecentNADs";
 
+export const dynamic = 'force-dynamic';
+
 export default function Home() {
   return (
     <div className="container mx-auto px-4">

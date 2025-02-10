@@ -2,6 +2,8 @@ import { Suspense } from 'react';
 import NadList from '../components/NadsList';
 import NadActions from './NadActions';
 
+export const dynamic = 'force-dynamic';
+
 export default function Nads() {
   return (
     <div className="container mx-auto p-4">
