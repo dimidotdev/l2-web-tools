@@ -7,9 +7,23 @@ import NadSkeleton from '../components/NADSkeleton';
 export const dynamic = 'force-dynamic';
 
 function NadGrid({ nads }: { nads: NAD[] }) {
+  const nadsArray = Array.isArray(nads) ? nads : [];
+  
+  const sortedNads = [...nadsArray].sort((a, b) => 
+    new Date(b.creationTime).getTime() - new Date(a.creationTime).getTime()
+  );
+
+  if (nadsArray.length === 0) {
+    return (
+      <div className="w-full text-center p-4">
+        <p className="text-gray-500">Nenhum NAD encontrado.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-      {nads.map((nad: NAD) => (
+      {sortedNads.map((nad: NAD) => (
         <Link 
           href={`${process.env.DEPLOY_URL}/nads/${nad.ticketId}`} 
           key={nad.ticketId} 
@@ -36,7 +50,9 @@ function NadGrid({ nads }: { nads: NAD[] }) {
 }
 
 export default async function NadList() {
-  const nads = await getNads();
+  const result = await getNads();
+  
+  const nads = result?.nads || [];
 
   return (
     <div className="min-h-screen">

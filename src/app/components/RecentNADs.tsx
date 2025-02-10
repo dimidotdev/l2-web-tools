@@ -6,6 +6,8 @@ import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
 
+// const URL = `${process.env.DEPLOY_URL}/api/v1/nads/recent`;
+
 export const RecentNADs = () => {
   const [recentNADs, setRecentNADs] = useState<NAD[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -69,7 +71,7 @@ export const RecentNADs = () => {
                 {nad.ticketId}
               </span>
               <span className="text-sm text-gray-500">
-                {nad.creationTime}
+                {nad.creationTime instanceof Date ? nad.creationTime.toISOString() : nad.creationTime}
               </span>
             </Link>
           </div>

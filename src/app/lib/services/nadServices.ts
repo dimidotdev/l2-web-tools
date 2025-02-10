@@ -2,10 +2,26 @@ import { connectDB } from "@/app/api/db";
 import { NAD } from "@/app/types/nad";
 import clientPromise from "../mongodb";
 
-export async function getNads() {
-  const { db } = await connectDB();
-  const nads = await db.collection('quicknads').find().toArray();
-  return JSON.parse(JSON.stringify(nads));
+export async function getNads(): Promise<{ nads: NAD[] }> {
+  try {
+    const { db } = await connectDB();
+
+    const nads = await db
+      .collection('quicknads')
+      .find({})
+      .sort({ creationTime: -1 })
+      .toArray();
+
+    return { nads: nads.map(nad => ({
+      ticketId: nad.ticketId,
+      customerName: nad.customerName,
+      targetUrl: nad.targetUrl,
+      creationTime: nad.creationTime
+    })) || [] };
+  } catch (error) {
+    console.error('Error fetching NADs:', error);
+    return { nads: [] };
+  }
 }
 
 export async function GetNAD(ticketId: string) {
