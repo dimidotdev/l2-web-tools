@@ -17,6 +17,14 @@ export default {
       sans: ['var(--font-poppins)', 'system-ui', 'sans-serif'],
       heading: ['var(--font-montserrat)', 'system-ui', 'sans-serif'],
     },
+    animation: {
+      shimmer: 'shimmer 2s infinite linear',
+    },
+    keyframes: {
+      shimmer: {
+        '100%': { transform: 'translateX(100%)' },
+      },
+    },
   },
   plugins: [],
 } satisfies Config;
