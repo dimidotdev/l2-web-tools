@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import NadList from '../NadsList';
+import NadList from '../components/NadsList';
 import NadActions from './NadActions';
 
 export default function Nads() {

@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import { Suspense } from 'react';
-import { getNads } from './lib/services/nadServices';
-import { NAD } from './types/nad';
-import NadSkeleton from './components/NADSkeleton';
+import { getNads } from '../lib/services/nadServices';
+import { NAD } from '../types/nad';
+import NadSkeleton from '../components/NADSkeleton';
 
 function NadGrid({ nads }: { nads: NAD[] }) {
   return (

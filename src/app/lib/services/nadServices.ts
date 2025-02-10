@@ -25,23 +25,12 @@ export async function getRecentNADs() {
   try {
     const { db } = await connectDB();
 
-    // Log para verificar a conexão
-    console.log('Conectado ao MongoDB');
-
-    // Verificar um documento de exemplo
-    const sampleDoc = await db.collection('quicknads').findOne({});
-    console.log('Exemplo de documento:', sampleDoc);
-
     const nads = await db
       .collection('quicknads')
       .find({})
       .sort({ creationTime: -1 })
       .limit(5)
       .toArray();
-
-    // Log para verificar os resultados
-    console.log('NADs encontrados:', nads.length);
-    console.log('Primeiro NAD:', nads[0]);
 
     return { nads, error: null };
   } catch (error) {
