@@ -14,7 +14,7 @@ export const RecentNADs = () => {
   useEffect(() => {
     const fetchRecentNADs = async () => {
       try {
-        const response = await fetch('http://localhost:3000/api/v1/nads/recent');
+        const response = await fetch('https://l2tools.vercel.app/api/v1/nads/recent');
         const data = await response.json();
 
         if (data.error) {

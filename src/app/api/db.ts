@@ -7,7 +7,7 @@ let cachedDb: Db | null = null;
 
 export async function connectDB(){
   
-  const uri = `mongodb+srv://${process.env.MONGODB_USER}:${process.env.MONGODB_PASSWORD}@l2tools.75wop.mongodb.net/?retryWrites=true&w=majority&appName=L2Tools`;
+  const uri = `${process.env.MONGODB_URI}`;
   
   if (cachedClient && cachedDb) {
     return { client: cachedClient, db: cachedDb};

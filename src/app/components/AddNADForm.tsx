@@ -31,7 +31,7 @@ export default function NADForm({ isOpen, onClose }: NADFormProps) {
 
   const onSubmit = async (data: NADFormData) => {
     try {
-      const response = await fetch(`http://localhost:3000/api/v1/nads`, {
+      const response = await fetch(`https://l2tools.vercel.app/api/v1/nads`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
