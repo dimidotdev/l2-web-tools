@@ -20,3 +20,32 @@ export async function createNad(nadData: Omit<NAD, '_id'>) {
   const result = await db.collection('quicknads').insertOne(nadData);
   return result;
 }
+
+export async function getRecentNADs() {
+  try {
+    const { db } = await connectDB();
+
+    // Log para verificar a conexão
+    console.log('Conectado ao MongoDB');
+
+    // Verificar um documento de exemplo
+    const sampleDoc = await db.collection('quicknads').findOne({});
+    console.log('Exemplo de documento:', sampleDoc);
+
+    const nads = await db
+      .collection('quicknads')
+      .find({})
+      .sort({ creationTime: -1 })
+      .limit(5)
+      .toArray();
+
+    // Log para verificar os resultados
+    console.log('NADs encontrados:', nads.length);
+    console.log('Primeiro NAD:', nads[0]);
+
+    return { nads, error: null };
+  } catch (error) {
+    console.error('Erro ao buscar NADs recentes:', error);
+    return { nads: [], error: 'Falha ao carregar NADs recentes' };
+  }
+}

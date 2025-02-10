@@ -13,6 +13,10 @@ export default {
         foreground: "var(--foreground)",
       },
     },
+    fontFamily: {
+      sans: ['var(--font-poppins)', 'system-ui', 'sans-serif'],
+      heading: ['var(--font-montserrat)', 'system-ui', 'sans-serif'],
+    },
   },
   plugins: [],
 } satisfies Config;
