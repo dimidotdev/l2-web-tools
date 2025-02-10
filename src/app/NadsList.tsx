@@ -1,17 +1,30 @@
-import Link from "next/link";
-import { Nad } from "./nads-data";
+import { getNads } from './lib/services/nadServices';
+import { NAD } from './types/nad';
 
-export default function NadsList({ nads }: { nads: Nad[] }) {
+export default async function NadList() {
+  const nads = await getNads();
+
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-      {nads.map(nad => (
-        <Link key={nad.ticketId} href={`/nads/${nad.ticketId}`}
-        passHref
-        className="bg-white rounded-lg p-4 hover:shadow-lg transition duration-300"
+    <div className="grid gap-4">
+      {nads.map((nad: NAD) => (
+        <div 
+          key={nad.ticketId} 
+          className="p-4 border rounded-lg shadow-sm hover:shadow-md transition-shadow"
         >
-          <h2 className="text-1xl font-bold">{nad.ticketId}</h2>
-          <p>{nad.creationDate}</p>
-        </Link>
+          <h3 className="font-bold">{nad.customerName}</h3>
+          <p className="text-sm text-gray-600">Ticket: {nad.ticketId}</p>
+          <a 
+            href={nad.targetUrl} 
+            className="text-blue-500 hover:underline"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Ver Target URL
+          </a>
+          <p className="text-xs text-gray-500 mt-2">
+            Criado em: {new Date(nad.creationTime).toLocaleString()}
+          </p>
+        </div>
       ))}
     </div>
   );

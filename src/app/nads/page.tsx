@@ -1,20 +1,18 @@
-import NadsList from "../NadsList";
-import 'dotenv/config';
+import { Suspense } from 'react';
+import NadList from '../NadsList';
+import NadActions from './NadActions';
 
-export default async function Nads() {
-
-  const response = await fetch(`${process.env.URL}/api/v1/nads`);
-  const nads = await response.json();
-
+export default function Nads() {
   return (
-    <div className="page-container p-8">
-      <div className="container mx-auto">
-        <button
-        className="mb-8 px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75"
-        
-        >Create NAD</button> 
-        <NadsList nads={nads}/>
+    <div className="container mx-auto p-4">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">NADs</h1>
+        <NadActions />
       </div>
+
+      <Suspense fallback={<div>Carregando NADs...</div>}>
+        <NadList />
+      </Suspense>
     </div>
   );
 }
