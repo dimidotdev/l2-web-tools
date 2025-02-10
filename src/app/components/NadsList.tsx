@@ -11,7 +11,7 @@ function NadGrid({ nads }: { nads: NAD[] }) {
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
       {nads.map((nad: NAD) => (
         <Link 
-          href={`/nads/${nad.ticketId}`} 
+          href={`${process.env.DEPLOY_URL}/nads/${nad.ticketId}`} 
           key={nad.ticketId} 
           className="p-4 border bg-gray-100 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer transform hover:-translate-y-1"
         >
