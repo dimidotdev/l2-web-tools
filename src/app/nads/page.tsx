@@ -1,19 +1,23 @@
 import { Suspense } from 'react';
-import NadList from '../components/NadsList';
-import NadActions from './NadActions';
-
+import { getNads } from '../lib/services/nadServices';
+import NadSkeleton from '../components/NADSkeleton';
+import NadsList from '../components/NadsList';
 export const dynamic = 'force-dynamic';
 
-export default function Nads() {
-  return (
-    <div className="container mx-auto p-4">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">NADs</h1>
-        <NadActions />
-      </div>
+export default async function NadList() {
+  const result = await getNads();
+  
+  const nads = (result?.nads || [])
+    .map(nad => ({
+      ...nad,
+      createdAt: nad.createdAt || new Date().toISOString()
+    }));
 
-      <Suspense fallback={<div>Carregando NADs...</div>}>
-        <NadList />
+  return (
+    <div className="min-h-screen p-4">
+      <Suspense fallback={<NadSkeleton />}>
+        <h1 className="text-3xl font-bold text-gray-800 mb-4">NADs</h1>
+        <NadsList nads={nads} />
       </Suspense>
     </div>
   );
