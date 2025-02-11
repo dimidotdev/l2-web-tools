@@ -5,6 +5,9 @@ import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { Todo } from '../types/todo';
 import EditTodoModal from './EditTodoModal';
+import 'dotenv/config';
+
+export const dynamic = 'force-dynamic';
 
 export default function TodoBoard() {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -26,7 +29,7 @@ export default function TodoBoard() {
   const loadTodos = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch('/api/v1/todos');
+      const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/v1/todos`);
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -53,7 +56,7 @@ export default function TodoBoard() {
     if (!newTodo.trim()) return;
   
     try {
-      const response = await fetch('/api/v1/todos', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/v1/todos`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -87,7 +90,7 @@ export default function TodoBoard() {
 
   const handleUpdateTodo = async (todoId: string, updates: Partial<Todo>) => {
     try {
-      const response = await fetch(`/api/v1/todos/${todoId}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/v1/todos/${todoId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -108,7 +111,7 @@ export default function TodoBoard() {
 
   const handleDeleteTodo = async (todoId: string) => {
     try {
-      const response = await fetch(`/api/v1/todos/${todoId}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/v1/todos/${todoId}`, {
         method: 'DELETE',
       });
 

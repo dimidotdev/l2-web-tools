@@ -3,10 +3,9 @@
 import { useEffect, useState } from 'react';
 import type { NAD } from '@/app/types/nad';
 import Link from 'next/link';
+import 'dotenv/config';
 
 export const dynamic = 'force-dynamic';
-
-// const URL = `${process.env.DEPLOY_URL}/api/v1/nads/recent`;
 
 export const RecentNADs = () => {
   const [recentNADs, setRecentNADs] = useState<NAD[]>([]);
@@ -16,7 +15,7 @@ export const RecentNADs = () => {
   useEffect(() => {
     const fetchRecentNADs = async () => {
       try {
-        const response = await fetch('https://l2tools.vercel.app/api/v1/nads/recent');
+        const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/v1/nads/recent`);
         const data = await response.json();
 
         if (data.error) {

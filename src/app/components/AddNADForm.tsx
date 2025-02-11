@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import Modal from './Modal';
 import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
+import 'dotenv/config';
 
 interface NADFormProps {
   isOpen: boolean;
@@ -31,7 +32,7 @@ export default function NADForm({ isOpen, onClose }: NADFormProps) {
 
   const onSubmit = async (data: NADFormData) => {
     try {
-      const response = await fetch(`https://l2tools.vercel.app/api/v1/nads`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/v1/nads`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

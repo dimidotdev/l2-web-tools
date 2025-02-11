@@ -3,7 +3,7 @@ import NotFound from "@/app/not-found";
 export default async function NadDetail(props: {params: Promise<{ticketId: string}>}) {
   const params = await props.params;
 
-  const response = await fetch(`${process.env.DEPLOY_URL}/api/v1/nads/${params.ticketId}`);
+  const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/v1/nads/${params.ticketId}`);
   const nad = await response.json();
 
   if (!nad.ticketId) return <NotFound />;
