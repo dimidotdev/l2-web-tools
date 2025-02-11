@@ -20,3 +20,24 @@ export function validateTodo(data: Partial<Todo>): { isValid: boolean; errors: s
     errors
   };
 }
+
+export function validateSuggestion(content: string) {
+  if (!content?.trim()) {
+    return {
+      isValid: false,
+      error: 'O conteúdo da sugestão é obrigatório'
+    };
+  }
+
+  if (content.length > 280) {
+    return {
+      isValid: false,
+      error: 'A sugestão deve ter no máximo 280 caracteres'
+    };
+  }
+
+  return {
+    isValid: true,
+    error: null
+  };
+}

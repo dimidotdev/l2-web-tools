@@ -24,7 +24,7 @@ export const RecentNADs = () => {
 
         setRecentNADs(data.nads);
       } catch (error) {
-        setError(error instanceof Error ? error.message : 'Erro ao carregar NADs');
+        setError(error instanceof Error ? error.message : 'Error loading the NADs');
       } finally {
         setIsLoading(false);
       }
@@ -57,7 +57,7 @@ export const RecentNADs = () => {
   return (
     <div className="w-full max-w-md p-4">
       <h3 className="text-lg font-semibold text-gray-800 mb-4">
-        NADs Recentes
+        Last NADs
       </h3>
       <div className="space-y-2">
         {recentNADs.map((nad) => (

@@ -15,39 +15,74 @@ interface NADFormData {
   ticketId: string;
   customerName: string;
   targetUrl: string;
-  creationTime: string;
+  createdAt?: string;
 }
 
-
 export default function NADForm({ isOpen, onClose }: NADFormProps) {
-
   const router = useRouter();
 
   const {
     register,
     handleSubmit,
     reset,
+    setError,
     formState: { errors, isSubmitting }
   } = useForm<NADFormData>();
 
+  const checkTicketIdExists = async (ticketId: string) => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/v1/nads/check?ticketId=${ticketId}`);
+      const data = await response.json();
+      return data.exists;
+    } catch (error) {
+      console.error('Error checking ticketId:', error);
+      return false;
+    }
+  };
+
   const onSubmit = async (data: NADFormData) => {
     try {
+      const ticketExists = await checkTicketIdExists(data.ticketId);
+      
+      if (ticketExists) {
+        setError('ticketId', {
+          type: 'manual',
+          message: 'This Ticket ID already exists'
+        });
+        toast.error('Ticket ID already exists');
+        return;
+      }
+
+      const nadData = {
+        ...data,
+        createdAt: new Date().toISOString(),
+        author: 'dimidotdev'
+      };
+
       const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/v1/nads`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(nadData),
       });
 
+      const result = await response.json();
+
       if (!response.ok) {
-        throw new Error('Fail on creating NAD');
+        if (response.status === 409) {
+          setError('ticketId', {
+            type: 'manual',
+            message: 'This Ticket ID already exists'
+          });
+          toast.error('Ticket ID already exists');
+          return;
+        }
+        throw new Error(result.error || 'Error creating NAD');
       }
 
-      const result = await response.json();
-      
       if (result.success) {
-        toast.success('NAD succcessfuly created!');
+        toast.success('NAD successfully created!');
         reset();
         onClose();
         router.refresh();
@@ -55,8 +90,8 @@ export default function NADForm({ isOpen, onClose }: NADFormProps) {
         throw new Error(result.error || 'Error creating NAD');
       }
     } catch (error) {
-      console.error('Erro:', error);
-      toast.error('Error creating NAD');
+      console.error('Error:', error);
+      toast.error(error instanceof Error ? error.message : 'Error creating NAD');
     }
   };
 
@@ -68,8 +103,16 @@ export default function NADForm({ isOpen, onClose }: NADFormProps) {
         <div>
           <label className="block text-sm font-medium mb-1">Ticket ID</label>
           <input
-            {...register('ticketId', { required: 'Ticket ID is required' })}
-            className="w-full border rounded-md px-3 py-2"
+            {...register('ticketId', { 
+              required: 'Ticket ID is required',
+              pattern: {
+                value: /^[A-Za-z0-9-]+$/,
+                message: 'Ticket ID should contain only letters, numbers and hyphens'
+              }
+            })}
+            className={`w-full border rounded-md px-3 py-2 ${
+              errors.ticketId ? 'border-red-500' : 'border-gray-300'
+            }`}
           />
           {errors.ticketId && (
             <span className="text-red-500 text-sm">{errors.ticketId.message}</span>
@@ -80,7 +123,9 @@ export default function NADForm({ isOpen, onClose }: NADFormProps) {
           <label className="block text-sm font-medium mb-1">Customer Name</label>
           <input
             {...register('customerName', { required: 'Customer name is required' })}
-            className="w-full border rounded-md px-3 py-2"
+            className={`w-full border rounded-md px-3 py-2 ${
+              errors.customerName ? 'border-red-500' : 'border-gray-300'
+            }`}
           />
           {errors.customerName && (
             <span className="text-red-500 text-sm">{errors.customerName.message}</span>
@@ -90,23 +135,19 @@ export default function NADForm({ isOpen, onClose }: NADFormProps) {
         <div>
           <label className="block text-sm font-medium mb-1">Target URL</label>
           <input
-            {...register('targetUrl', { required: 'Target URL is required' })}
-            className="w-full border rounded-md px-3 py-2"
+            {...register('targetUrl', { 
+              required: 'Target URL is required',
+              pattern: {
+                value: /^https?:\/\/.+/,
+                message: 'Please enter a valid URL starting with http:// or https://'
+              }
+            })}
+            className={`w-full border rounded-md px-3 py-2 ${
+              errors.targetUrl ? 'border-red-500' : 'border-gray-300'
+            }`}
           />
           {errors.targetUrl && (
             <span className="text-red-500 text-sm">{errors.targetUrl.message}</span>
-          )}
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-1">Creation time</label>
-          <input
-            type="datetime-local"
-            {...register('creationTime')}
-            className="w-full border rounded-md px-3 py-2"
-          />
-          {errors.creationTime && (
-            <span className="text-red-500 text-sm">{errors.creationTime.message}</span>
           )}
         </div>
 

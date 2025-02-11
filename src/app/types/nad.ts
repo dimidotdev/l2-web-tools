@@ -2,7 +2,7 @@ export interface NAD {
   ticketId: string;
   customerName: string;
   targetUrl: string;
-  creationTime: string | Date;
+  createdAt?: string;
 }
 
 export interface QuickNAD {

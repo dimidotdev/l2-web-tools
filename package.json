@@ -13,6 +13,7 @@
     "@hello-pangea/dnd": "^18.0.1",
     "@heroicons/react": "^2.2.0",
     "@types/dotenv": "^8.2.3",
+    "date-fns": "^4.1.0",
     "dotenv": "^16.4.7",
     "heroicons": "^2.2.0",
     "mongodb": "^6.13.0",

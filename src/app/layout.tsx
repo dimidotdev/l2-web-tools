@@ -1,29 +1,30 @@
-import type { Metadata } from "next";
-import "./globals.css";
-import Navbar from "./components/Navbar";
-import { Poppins } from 'next/font/google';
+import './globals.css';
+import { Inter } from 'next/font/google';
+import Navbar from './components/Navbar';
 
-const poppins = Poppins({
-  weight: ['300', '400', '500', '600'],
-  subsets: ['latin'],
-  display: 'swap',
-})
+const inter = Inter({ subsets: ['latin'] });
 
-export const metadata: Metadata = {
-  title: "L2 Web Tools",
-  description: "Created by Matheus with ❤️",
+export const metadata = {
+  title: 'NADs - Documentation System',
+  description: 'Documentation system for NADs',
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html lang="en" className={poppins.className}>
-      <body>
-        <Navbar />
-        {children}
+    <html lang="en">
+      <body className={`${inter.className} bg-gray-50`}>
+        <>
+          <div>
+            <Navbar />
+          </div>
+          <div className='mt-16'>
+            {children}
+          </div>
+        </>
       </body>
     </html>
   );

@@ -10,10 +10,9 @@ export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <nav className="bg-gray-800 shadow-lg">
+    <nav className="bg-gray-800 shadow-lg fixed top-0 left-0 w-full z-10">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
-          {/* Logo ou nome do site */}
           <div className="flex-shrink-0 flex items-center">
             <Link 
               href="/" 
@@ -23,7 +22,6 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* Links do desktop */}
           <div className="hidden md:flex items-center space-x-4">
             <Link 
               href="/" 
@@ -44,8 +42,6 @@ export default function Navbar() {
               Development Tasks
             </Link>
           </div>
-
-          {/* Autenticação desktop */}
           <div className="hidden md:flex items-center space-x-4">
             <Link 
               href="/login" 
@@ -60,8 +56,6 @@ export default function Navbar() {
               Register
             </Link>
           </div>
-
-          {/* Botão mobile menu */}
           <div className="md:hidden flex items-center">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -76,8 +70,6 @@ export default function Navbar() {
             </button>
           </div>
         </div>
-
-        {/* Menu mobile */}
         {isMenuOpen && (
           <div className="md:hidden">
             <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">

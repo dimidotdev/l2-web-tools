@@ -1,26 +1,94 @@
 import { connectDB } from "@/app/api/db";
 import { NAD } from "@/app/types/nad";
-import clientPromise from "../mongodb";
+import 'dotenv/config';
+interface NADError extends Error {
+  code?: string;
+}
 
-export async function getNads(): Promise<{ nads: NAD[] }> {
+interface GetNadsOptions {
+  page?: number;
+  itemsPerPage?: number;
+}
+
+export async function getNads({ page = 1, itemsPerPage = 12 }: GetNadsOptions = {}) {
   try {
-    const { db } = await connectDB();
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/nads?page=${page}&limit=${itemsPerPage}`, {
+      cache: 'no-store'
+    });
 
-    const nads = await db
-      .collection('quicknads')
-      .find({})
-      .sort({ creationTime: -1 })
-      .toArray();
+    if (!response.ok) {
+      throw new Error('Failed to fetch NADs');
+    }
 
-    return { nads: nads.map(nad => ({
-      ticketId: nad.ticketId,
-      customerName: nad.customerName,
-      targetUrl: nad.targetUrl,
-      creationTime: nad.creationTime
-    })) || [] };
+    const data = await response.json();
+    return {
+      nads: data.nads || [],
+      total: data.total,
+      currentPage: page,
+      totalPages: Math.ceil((data.total || 0) / itemsPerPage)
+    };
   } catch (error) {
     console.error('Error fetching NADs:', error);
-    return { nads: [] };
+    return {
+      nads: [],
+      total: 0,
+      currentPage: 1,
+      totalPages: 0
+    };
+  }
+}
+
+export async function createNad(nadData: Partial<NAD>) {
+  try {
+    // Primeiro, verifica se já existe uma NAD com o mesmo ticketId
+    const existingNad = await checkExistingTicketId(nadData.ticketId);
+    
+    if (existingNad) {
+      const error = new Error('TicketId já existe') as NADError;
+      error.code = 'DUPLICATE_TICKET_ID';
+      throw error;
+    }
+
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/nads`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        ...nadData,
+        createdAt: new Date().toISOString(),
+        author: 'Admin', // ou pegar do contexto de autenticação
+      }),
+    });
+
+    if (!response.ok) {
+      const error = new Error('Erro ao criar NAD') as NADError;
+      error.code = response.status === 409 ? 'DUPLICATE_TICKET_ID' : 'CREATE_ERROR';
+      throw error;
+    }
+
+    const data = await response.json();
+    return { success: true, nad: data.nad };
+  } catch (error) {
+    console.error('Error creating NAD:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Erro desconhecido',
+      code: (error as NADError).code || 'UNKNOWN_ERROR'
+    };
+  }
+}
+
+async function checkExistingTicketId(ticketId?: string): Promise<boolean> {
+  if (!ticketId) return false;
+
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/nads/check/${ticketId}`);
+    const data = await response.json();
+    return data.exists;
+  } catch (error) {
+    console.error('Error checking ticketId:', error);
+    return false;
   }
 }
 
@@ -30,13 +98,6 @@ export async function GetNAD(ticketId: string) {
   return JSON.parse(JSON.stringify(nad));
 }
 
-export async function createNad(nadData: Omit<NAD, '_id'>) {
-  const client = await clientPromise;
-  const db = client.db('l2tools');
-  const result = await db.collection('quicknads').insertOne(nadData);
-  return result;
-}
-
 export async function getRecentNADs() {
   try {
     const { db } = await connectDB();
@@ -44,7 +105,7 @@ export async function getRecentNADs() {
     const nads = await db
       .collection('quicknads')
       .find({})
-      .sort({ creationTime: -1 })
+      .sort({ createdAt: -1 })
       .limit(5)
       .toArray();
 
