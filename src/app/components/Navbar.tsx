@@ -29,15 +29,19 @@ export default function Navbar() {
               href="/" 
               className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors"
             >
-              <FaHome className="text-lg" />
-              <span>Home</span>
+              Home
             </Link>
             <Link 
               href="/nads" 
               className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors"
             >
-              <TfiWrite className="text-lg" />
-              <span>NADs</span>
+              NAD Board
+            </Link>
+            <Link
+              href="/todos"
+              className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors"
+            >
+              Development Tasks
             </Link>
           </div>
 
