@@ -1,8 +1,6 @@
 'use client';
 
 import Link from "next/link";
-import { FaHome } from "react-icons/fa";
-import { TfiWrite } from "react-icons/tfi";
 import { useState } from "react";
 import { HiMenu, HiX } from "react-icons/hi";
 
@@ -78,17 +76,22 @@ export default function Navbar() {
                 className="flex items-center gap-2 text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium"
                 onClick={() => setIsMenuOpen(false)}
               >
-                <FaHome className="text-lg" />
-                <span>Home</span>
+                Home
               </Link>
               <Link 
                 href="/nads" 
                 className="flex items-center gap-2 text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium"
                 onClick={() => setIsMenuOpen(false)}
               >
-                <TfiWrite className="text-lg" />
-                <span>NADs</span>
+                NADs
               </Link>
+              <Link
+                href="/todos"
+                className="flex items-center gap-2 text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium"
+                onClick={() => setIsMenuOpen(false)}
+            >
+              Development Tasks
+            </Link>
               <Link 
                 href="/login" 
                 className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium"
