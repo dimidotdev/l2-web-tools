@@ -6,6 +6,7 @@ import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { Todo } from '../types/todo';
 import EditTodoModal from './EditTodoModal';
 import 'dotenv/config';
+import TodoBoardSkeleton from './TodoBoardSkeleton';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,8 +19,8 @@ export default function TodoBoard() {
 
   const columns = [
     { id: 'backlog', title: 'Backlog', color: 'bg-gray-100' },
-    { id: 'in_progress', title: 'Em Progresso', color: 'bg-blue-50' },
-    { id: 'done', title: 'Concluído', color: 'bg-green-50' },
+    { id: 'in_progress', title: 'In Progress', color: 'bg-blue-50' },
+    { id: 'done', title: 'Done', color: 'bg-green-50' },
   ];
 
   useEffect(() => {
@@ -46,7 +47,7 @@ export default function TodoBoard() {
     } catch (error) {
       console.error('Error loading todos:', error);
       setTodos([]);
-      alert('Erro ao carregar tarefas. Tente novamente.');
+      alert('Error on loading tasks. Try reloading the page.');
     } finally {
       setIsLoading(false);
     }
@@ -84,7 +85,7 @@ export default function TodoBoard() {
       }
     } catch (error) {
       console.error('Error adding todo:', error);
-      alert('Erro ao adicionar tarefa. Tente novamente.');
+      alert('Error on add task. Try again.');
     }
   };
 
@@ -146,19 +147,19 @@ export default function TodoBoard() {
   };
 
   if (isLoading) {
-    return <div>Carregando...</div>;
+    return <TodoBoardSkeleton />;
   }
 
   return (
     <div className="p-4">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold">Backlog de Desenvolvimento</h2>
+        <h2 className="text-xl font-bold">Development backlog</h2>
         <button
           onClick={() => setIsAdding(true)}
           className="bg-blue-500 text-white px-3 py-1 rounded-md hover:bg-blue-600 flex items-center gap-2"
         >
           <PlusIcon className="h-4 w-4" />
-          Nova Tarefa
+          New task
         </button>
       </div>
 
@@ -176,13 +177,13 @@ export default function TodoBoard() {
             onClick={handleAddTodo}
             className="bg-green-500 text-white px-4 rounded-md hover:bg-green-600"
           >
-            Adicionar
+            Add
           </button>
           <button
             onClick={() => setIsAdding(false)}
             className="bg-gray-500 text-white px-4 rounded-md hover:bg-gray-600"
           >
-            Cancelar
+            Cancel
           </button>
         </div>
       )}
@@ -245,8 +246,8 @@ export default function TodoBoard() {
                                   todo.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
                                   'bg-green-100 text-green-800'
                                 }`}>
-                                  {todo.priority === 'high' ? 'Alta' :
-                                   todo.priority === 'medium' ? 'Média' : 'Baixa'}
+                                  {todo.priority === 'high' ? 'High' :
+                                   todo.priority === 'medium' ? 'Medium' : 'Low'}
                                 </span>
                               </div>
                             </div>

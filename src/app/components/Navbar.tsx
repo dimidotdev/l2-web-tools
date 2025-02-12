@@ -16,7 +16,6 @@ export default function Navbar() {
   const activeLinkStyle = "text-white bg-accent-800 px-3 py-2 rounded-md text-sm font-medium";
   const inactiveLinkStyle = "text-primary-300 hover:text-white hover:bg-accent-700 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200";
 
-  // Detectar scroll para mudar o estilo da navbar
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
@@ -31,7 +30,6 @@ export default function Navbar() {
     logout();
   };
 
-  // Verificar se o link está ativo
   const isActiveLink = (href: string) => {
     return pathname === href;
   };
@@ -46,7 +44,6 @@ export default function Navbar() {
     >
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
-          {/* Logo */}
           <div className="flex-shrink-0 flex items-center">
             <Link 
               href="/" 
@@ -56,7 +53,6 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* Navigation Links - Desktop */}
           <div className="hidden md:flex items-center space-x-1">
             <Link 
               href="/" 
@@ -81,11 +77,9 @@ export default function Navbar() {
             </Link>
           </div>
           
-          {/* User Menu - Desktop */}
           <div className="hidden md:flex items-center space-x-4">
             {isAuthenticated ? (
               <>
-                {/* User Profile */}
                 <div className="flex items-center gap-2 text-gray-300 bg-gray-700 px-3 py-2 rounded-full">
                   <div className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center">
                     <FaUser className="h-4 w-4" />
@@ -93,7 +87,6 @@ export default function Navbar() {
                   <span className="text-sm font-medium">{user?.username || 'User'}</span>
                 </div>
 
-                {/* Logout Button */}
                 <button 
                   onClick={handleLogout}
                   className="flex items-center gap-2 text-gray-300 hover:text-white hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium transition-colors"
@@ -120,7 +113,6 @@ export default function Navbar() {
             )}
           </div>
           
-          {/* Mobile Menu Button */}
           <div className="md:hidden">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -136,7 +128,6 @@ export default function Navbar() {
           </div>
         </div>
         
-        {/* Mobile Menu */}
         {isMenuOpen && (
           <div className="md:hidden">
             <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-gray-800 rounded-lg mt-2">

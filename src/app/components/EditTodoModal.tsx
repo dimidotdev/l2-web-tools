@@ -92,9 +92,9 @@ export default function EditTodoModal({ todo, isOpen, onClose, onSave }: EditTod
                       defaultValue={todo?.priority}
                       className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                     >
-                      <option value="low">Baixa</option>
-                      <option value="medium">Média</option>
-                      <option value="high">Alta</option>
+                      <option value="low">Low</option>
+                      <option value="medium">Medium</option>
+                      <option value="high">High</option>
                     </select>
                   </div>
 
@@ -104,13 +104,13 @@ export default function EditTodoModal({ todo, isOpen, onClose, onSave }: EditTod
                       onClick={onClose}
                       className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
                     >
-                      Cancelar
+                      Cancel
                     </button>
                     <button
                       type="submit"
                       className="inline-flex justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
                     >
-                      Salvar
+                      Save
                     </button>
                   </div>
                 </form>

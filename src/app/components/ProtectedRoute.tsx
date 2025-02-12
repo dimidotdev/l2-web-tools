@@ -22,7 +22,6 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
     );
   }
 
-  // Log de acesso à rota protegida
   const currentTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
   console.log(`Current Date and Time (UTC - YYYY-MM-DD HH:MM:SS formatted): ${currentTime}`);
   console.log(`Current User's Login: ${user?.username || 'dimidotdev'}`);

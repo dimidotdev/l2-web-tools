@@ -19,7 +19,6 @@ export default function NadsList({ nads }: NadsListProps) {
     direction: 'asc' | 'desc';
   }>({ key: 'createdAt', direction: 'desc' });
 
-  // Função de ordenação
   const sortedNads = [...nads].sort((a, b) => {
     if (a[sortConfig.key]! < b[sortConfig.key]!) {
       return sortConfig.direction === 'asc' ? -1 : 1;
@@ -30,13 +29,11 @@ export default function NadsList({ nads }: NadsListProps) {
     return 0;
   });
 
-  // Função de filtragem
   const filteredNads = sortedNads.filter(nad => 
     nad.ticketId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     nad.customerName?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Função para mudar a ordenação
   const requestSort = (key: keyof NAD) => {
     setSortConfig(current => ({
       key,
@@ -44,7 +41,6 @@ export default function NadsList({ nads }: NadsListProps) {
     }));
   };
 
-  // Função para formatar data
   const formatDate = (dateString: string) => {
     try {
       const date = new Date(dateString);
@@ -60,7 +56,6 @@ export default function NadsList({ nads }: NadsListProps) {
     }
   };
 
-  // Função para abrir NAD em nova aba
   const handleViewNad = (targetUrl: string) => {
     if (!targetUrl) {
       toast.error('URL not available');
@@ -69,7 +64,6 @@ export default function NadsList({ nads }: NadsListProps) {
     window.open(targetUrl, '_blank', 'noopener,noreferrer');
   };
 
-  // Função para deletar NAD
   const handleDeleteNad = async (id: string) => {
     if (!window.confirm('Are you sure you want to delete this NAD?')) {
       return;
@@ -85,7 +79,6 @@ export default function NadsList({ nads }: NadsListProps) {
       }
 
       toast.success('NAD deleted successfully');
-      // Recarregar a página ou atualizar a lista
       window.location.reload();
     } catch (error) {
       console.error('Error deleting NAD:', error);
@@ -95,7 +88,6 @@ export default function NadsList({ nads }: NadsListProps) {
 
   return (
     <div className="container mx-auto px-4">
-      {/* Barra de pesquisa e botões */}
       <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
         <div className="w-full md:w-1/3">
           <input
@@ -116,7 +108,6 @@ export default function NadsList({ nads }: NadsListProps) {
         </div>
       </div>
 
-      {/* Tabela de NADs */}
       <div className="overflow-x-auto bg-white rounded-lg shadow">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
@@ -218,7 +209,6 @@ export default function NadsList({ nads }: NadsListProps) {
         </table>
       </div>
 
-      {/* Mensagem quando não há NADs */}
       {filteredNads.length === 0 && (
         <div className="text-center py-8">
           <p className="text-gray-500">No NADs found</p>
