@@ -15,7 +15,7 @@ export const RecentNADs = () => {
   useEffect(() => {
     const fetchRecentNADs = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/v1/nads/recent`);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/v1/nad/recent`);
         const data = await response.json();
 
         if (data.error) {
@@ -67,7 +67,7 @@ export const RecentNADs = () => {
           >
             <Link
               key={nad._id}
-              href={`/nads/${nad._id}`}
+              href={`/nad/${nad._id}`}
               className="block hover:bg-gray-50 p-4 rounded-lg transition-colors"
             >
               <span className="font-medium text-blue-600">

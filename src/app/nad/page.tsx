@@ -14,13 +14,12 @@ export default function NadsPage() {
   useEffect(() => {
     const fetchNads = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/nads`);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/nad`);
         if (!response.ok) {
           throw new Error('Failed to fetch NADs');
         }
         const data = await response.json();
         
-        // Garantir que todos os NADs tenham as propriedades necessárias
         const formattedNads = (data.nads || []).map((nad: NAD) => ({
           ...nad,
           createdAt: nad.createdAt || new Date().toISOString(),

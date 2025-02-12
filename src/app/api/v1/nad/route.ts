@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '../../db';
 
-// GET - Listar todas as NADs
 export async function GET() {
   try {
     const { db } = await connectDB();
@@ -37,7 +36,6 @@ export async function GET() {
   }
 }
 
-// POST - Criar nova NAD
 export async function POST(request: NextRequest) {
   try {
     const { db } = await connectDB();

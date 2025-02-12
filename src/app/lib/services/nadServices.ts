@@ -2,7 +2,7 @@ import { NAD } from '../../types/nad';
 
 export async function getNads() {
   try {
-    const response = await fetch('/api/v1/nads', {
+    const response = await fetch('/api/v1/nad', {
       headers: {
         'Content-Type': 'application/json',
       },
@@ -23,28 +23,47 @@ export async function getNads() {
 
 export async function getNadById(id: string) {
   try {
-    const response = await fetch(`/api/v1/nads/${id}`, {
+    const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/nad/${id}`;
+    console.log('Fetching NAD from:', apiUrl);
+
+    const response = await fetch(apiUrl, {
+      method: 'GET',
       headers: {
         'Content-Type': 'application/json',
       },
-      cache: 'no-store'
+      cache: 'no-store',
     });
 
     if (!response.ok) {
-      throw new Error('Failed to fetch NAD');
+      const errorData = await response.json().catch(() => ({}));
+      console.error('API Error:', {
+        status: response.status,
+        statusText: response.statusText,
+        errorData,
+      });
+      
+      if (response.status === 404) {
+        throw new Error('NAD not found');
+      }
+      throw new Error(`Failed to fetch NAD: ${response.statusText}`);
     }
 
     const data = await response.json();
+    
+    if (!data.nad) {
+      throw new Error('Invalid response format');
+    }
+
     return data.nad;
   } catch (error) {
-    console.error('Error fetching NAD:', error);
-    return null;
+    console.error('Error in getNadById:', error);
+    throw error;
   }
 }
 
 export async function createNad(nadData: Partial<NAD>) {
   try {
-    const response = await fetch('/api/v1/nads', {
+    const response = await fetch('/api/v1/nad', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -70,7 +89,7 @@ export async function createNad(nadData: Partial<NAD>) {
 
 export async function updateNad(id: string, nadData: Partial<NAD>) {
   try {
-    const response = await fetch(`/api/v1/nads/${id}`, {
+    const response = await fetch(`/api/v1/nad/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -96,7 +115,7 @@ export async function updateNad(id: string, nadData: Partial<NAD>) {
 
 export async function deleteNad(id: string) {
   try {
-    const response = await fetch(`/api/v1/nads/${id}`, {
+    const response = await fetch(`/api/v1/nad/${id}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -117,7 +136,7 @@ export async function deleteNad(id: string) {
 
 export async function getRecentNADs(limit: number = 5) {
   try {
-    const response = await fetch(`/api/v1/nads/recent?limit=${limit}`, {
+    const response = await fetch(`/api/v1/nad/recent?limit=${limit}`, {
       headers: {
         'Content-Type': 'application/json',
       },

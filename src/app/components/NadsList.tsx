@@ -3,215 +3,137 @@
 import { useState } from 'react';
 import { NAD } from '../types/nad';
 import Link from 'next/link';
-import { FaEdit, FaTrash, FaEye, FaExternalLinkAlt } from 'react-icons/fa';
-import { useAuth } from '../contexts/AuthContext';
-import { toast } from 'react-hot-toast';
+import { format } from 'date-fns';
+import { DocumentIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
+import { FaPlus } from 'react-icons/fa';
 
 interface NadsListProps {
   nads: NAD[];
 }
 
 export default function NadsList({ nads }: NadsListProps) {
-  const { user } = useAuth();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [sortConfig, setSortConfig] = useState<{
-    key: keyof NAD;
-    direction: 'asc' | 'desc';
-  }>({ key: 'createdAt', direction: 'desc' });
+  const [sortBy, setSortBy] = useState<'createdAt' | 'ticketId'>('createdAt');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
   const sortedNads = [...nads].sort((a, b) => {
-    if (a[sortConfig.key]! < b[sortConfig.key]!) {
-      return sortConfig.direction === 'asc' ? -1 : 1;
-    }
-    if (a[sortConfig.key]! > b[sortConfig.key]!) {
-      return sortConfig.direction === 'asc' ? 1 : -1;
-    }
-    return 0;
+    const aValue = a[sortBy];
+    const bValue = b[sortBy];
+    const order = sortOrder === 'asc' ? 1 : -1;
+    
+    return aValue < bValue ? -1 * order : aValue > bValue ? 1 * order : 0;
   });
 
-  const filteredNads = sortedNads.filter(nad => 
-    nad.ticketId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    nad.customerName?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const requestSort = (key: keyof NAD) => {
-    setSortConfig(current => ({
-      key,
-      direction: current.key === key && current.direction === 'asc' ? 'desc' : 'asc',
-    }));
+  const handleSort = (field: 'createdAt' | 'ticketId') => {
+    if (sortBy === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(field);
+      setSortOrder('desc');
+    }
   };
 
   const formatDate = (dateString: string) => {
     try {
-      const date = new Date(dateString);
-      return date.toLocaleString('pt-BR', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-    } catch (error) {
+      return format(new Date(dateString), 'yyyy-MM-dd HH:mm:ss');
+    } catch {
       return dateString;
     }
   };
 
-  const handleViewNad = (targetUrl: string) => {
-    if (!targetUrl) {
-      toast.error('URL not available');
-      return;
-    }
-    window.open(targetUrl, '_blank', 'noopener,noreferrer');
-  };
-
-  const handleDeleteNad = async (id: string) => {
-    if (!window.confirm('Are you sure you want to delete this NAD?')) {
-      return;
-    }
-
-    try {
-      const response = await fetch(`/api/v1/nads/${id}`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to delete NAD');
-      }
-
-      toast.success('NAD deleted successfully');
-      window.location.reload();
-    } catch (error) {
-      console.error('Error deleting NAD:', error);
-      toast.error('Failed to delete NAD');
-    }
-  };
-
   return (
-    <div className="container mx-auto px-4">
-      <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-        <div className="w-full md:w-1/3">
-          <input
-            type="text"
-            placeholder="Search by Ticket ID or Customer..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-        <div className="flex gap-4">
-          <Link
-            href="/nads/new"
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            New NAD
-          </Link>
+    <div className="bg-white rounded-lg shadow overflow-hidden">
+      {/* Header */}
+      <div className="px-4 py-5 border-b border-primary-200 sm:px-6">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg leading-6 font-medium text-accent-900">
+            NADs ({nads.length})
+          </h3>
+          <div className="flex space-x-3">
+            <button
+              onClick={() => handleSort('createdAt')}
+              className={`px-3 py-2 text-sm font-medium rounded-md ${
+                sortBy === 'createdAt'
+                  ? 'bg-accent-100 text-accent-700'
+                  : 'text-accent-500 hover:text-accent-700'
+              }`}
+            >
+              Sort by Date {sortBy === 'createdAt' && (sortOrder === 'asc' ? '↑' : '↓')}
+            </button>
+            <button
+              onClick={() => handleSort('ticketId')}
+              className={`px-3 py-2 text-sm font-medium rounded-md ${
+                sortBy === 'ticketId'
+                  ? 'bg-accent-100 text-accent-700'
+                  : 'text-accent-500 hover:text-accent-700'
+              }`}
+            >
+              Sort by Ticket {sortBy === 'ticketId' && (sortOrder === 'asc' ? '↑' : '↓')}
+            </button>
+            <Link
+              href="/nad/new"
+              className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-accent-600 hover:bg-accent-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent-500"
+            >
+              <FaPlus className="mr-2 h-4 w-4" />
+              Create NAD
+            </Link>
+          </div>
         </div>
       </div>
 
-      <div className="overflow-x-auto bg-white rounded-lg shadow">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th
-                onClick={() => requestSort('ticketId')}
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-              >
-                Ticket ID
-              </th>
-              <th
-                onClick={() => requestSort('customerName')}
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-              >
-                Customer
-              </th>
-              <th
-                onClick={() => requestSort('createdAt')}
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-              >
-                Created At
-              </th>
-              <th
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                Created By
-              </th>
-              <th
-                className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {filteredNads.map((nad) => (
-              <tr
-                key={nad._id}
-                className="hover:bg-gray-50 transition-colors"
-              >
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-medium text-gray-900">
-                    {nad.ticketId}
+      {/* NADs List */}
+      <ul className="divide-y divide-primary-200">
+        {sortedNads.map((nad) => (
+          <li key={nad._id || nad.ticketId}>
+            <Link 
+              href={`/nad/${nad.ticketId}`}
+              className="block hover:bg-primary-50"
+            >
+              <div className="px-4 py-4 sm:px-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <DocumentIcon className="h-5 w-5 text-accent-400" />
+                    <p className="ml-2 text-sm font-medium text-accent-900">
+                      {nad.ticketId}
+                    </p>
+                    <span className="ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-accent-100 text-accent-800">
+                      {nad.attackType}
+                    </span>
                   </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">
-                    {nad.customerName}
+                  <div className="flex items-center">
+                    {nad.nadSolved === 'Yes' ? (
+                      <CheckCircleIcon className="h-5 w-5 text-green-500" title="Solved" />
+                    ) : (
+                      <XCircleIcon className="h-5 w-5 text-red-500" title="Not Solved" />
+                    )}
                   </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-500">
-                    {formatDate(nad.createdAt!)}
+                </div>
+                <div className="mt-2 sm:flex sm:justify-between">
+                  <div className="sm:flex">
+                    <p className="flex items-center text-sm text-accent-500">
+                      {nad.targetUrl}
+                    </p>
                   </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-500">
-                    {nad.createdBy || user?.username || 'dimidotdev'}
+                  <div className="mt-2 flex items-center text-sm text-accent-500 sm:mt-0">
+                    <p>
+                      Created by {nad.createdBy || 'dimidotdev'} on{' '}
+                      {formatDate(nad.createdAt || '2025-02-12 04:18:09')}
+                    </p>
                   </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-              <div className="flex justify-end gap-3">
-                <button
-                  onClick={() => handleViewNad(nad.targetUrl)}
-                  className="text-green-600 hover:text-green-900"
-                  title="View NAD"
-                >
-                  <FaExternalLinkAlt className="h-5 w-5" />
-                </button>
-                
-                <Link
-                  href={`/nads/${nad._id}`}
-                  className="text-blue-600 hover:text-blue-900"
-                  title="View Details"
-                >
-                  <FaEye className="h-5 w-5" />
-                </Link>
-                
-                <Link
-                  href={`/nads/${nad._id}/edit`}
-                  className="text-indigo-600 hover:text-indigo-900"
-                  title="Edit"
-                >
-                  <FaEdit className="h-5 w-5" />
-                </Link>
-                
-                <button
-                  onClick={() => handleDeleteNad(nad._id)}
-                  className="text-red-600 hover:text-red-900"
-                  title="Delete"
-                >
-                  <FaTrash className="h-5 w-5" />
-                </button>
+                </div>
               </div>
-            </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </Link>
+          </li>
+        ))}
+      </ul>
 
-      {filteredNads.length === 0 && (
-        <div className="text-center py-8">
-          <p className="text-gray-500">No NADs found</p>
+      {/* Empty State */}
+      {nads.length === 0 && (
+        <div className="text-center py-12">
+          <DocumentIcon className="mx-auto h-12 w-12 text-accent-400" />
+          <h3 className="mt-2 text-sm font-medium text-accent-900">No NADs</h3>
+          <p className="mt-1 text-sm text-accent-500">
+            No NADs have been created yet.
+          </p>
         </div>
       )}
     </div>

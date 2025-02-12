@@ -62,8 +62,8 @@ export default function Navbar() {
               <span>Home</span>
             </Link>
             <Link 
-              href="/nads" 
-              className={`flex items-center gap-2 ${isActiveLink('/nads') ? activeLinkStyle : inactiveLinkStyle}`}
+              href="/nad" 
+              className={`flex items-center gap-2 ${isActiveLink('/nad') ? activeLinkStyle : inactiveLinkStyle}`}
             >
               <FaClipboardList className="h-4 w-4" />
               <span>NAD Board</span>
@@ -140,8 +140,8 @@ export default function Navbar() {
                 <span>Home</span>
               </Link>
               <Link 
-                href="/nads" 
-                className={`flex items-center gap-2 ${isActiveLink('/nads') ? 'text-white bg-gray-900' : 'text-gray-300 hover:text-white hover:bg-gray-700'} block px-3 py-2 rounded-md text-base font-medium transition-colors`}
+                href="/nad" 
+                className={`flex items-center gap-2 ${isActiveLink('/nad') ? 'text-white bg-gray-900' : 'text-gray-300 hover:text-white hover:bg-gray-700'} block px-3 py-2 rounded-md text-base font-medium transition-colors`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 <FaClipboardList className="h-4 w-4" />

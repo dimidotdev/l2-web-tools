@@ -21,7 +21,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
 
-  // Função para persistir o estado de autenticação
   const persistAuthState = (user: User | null) => {
     if (user) {
       localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({
@@ -33,17 +32,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // Função para recuperar o estado de autenticação
   const loadAuthState = () => {
     try {
       const stored = localStorage.getItem(AUTH_STORAGE_KEY);
       if (stored) {
         const { user, timestamp } = JSON.parse(stored);
         
-        // Opcional: verificar se a sessão não expirou (exemplo: 24 horas)
         const storedTime = new Date(timestamp).getTime();
         const currentTime = new Date().getTime();
-        const sessionDuration = 24 * 60 * 60 * 1000; // 24 horas em milissegundos
+        const sessionDuration = 24 * 60 * 60 * 1000; 
 
         if (currentTime - storedTime > sessionDuration) {
           localStorage.removeItem(AUTH_STORAGE_KEY);
@@ -58,14 +55,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return null;
   };
 
-  // Carregar estado inicial
   useEffect(() => {
     const storedUser = loadAuthState();
     setUser(storedUser);
     setIsLoading(false);
   }, []);
 
-  // Redirecionar se necessário
   useEffect(() => {
     if (!isLoading) {
       if (!user && pathname !== '/login') {
@@ -77,7 +72,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [user, isLoading, pathname, router]);
 
   const login = async (username: string, password: string) => {
-    // Simular delay de rede
     await new Promise(resolve => setTimeout(resolve, 500));
 
     if (username === 'dimidotdev' && password === 'nad123') {
@@ -90,7 +84,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(newUser);
       persistAuthState(newUser);
       
-      // Log de acesso
       console.log(`Login Time (UTC): ${new Date().toISOString().slice(0, 19).replace('T', ' ')}`);
       console.log(`User's Login: ${username}`);
       
@@ -104,7 +97,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     persistAuthState(null);
     router.push('/login');
     
-    // Log de saída
     console.log(`Logout Time (UTC): ${new Date().toISOString().slice(0, 19).replace('T', ' ')}`);
   };
 

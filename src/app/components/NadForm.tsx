@@ -62,7 +62,7 @@ export default function NadForm() {
         lastModifiedBy: user?.username || 'dimidotdev'
       };
 
-      const response = await fetch('/api/v1/nads', {
+      const response = await fetch('/api/v1/nad', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -75,7 +75,7 @@ export default function NadForm() {
       }
 
       toast.success('NAD created successfully!');
-      router.push('/nads');
+      router.push('/nad');
     } catch (error) {
       console.error('Error creating NAD:', error);
       toast.error('Failed to create NAD. Please try again.');
@@ -355,7 +355,7 @@ export default function NadForm() {
       <div className="bg-gray-50 px-6 py-4 flex items-center justify-end space-x-4 rounded-b-lg">
         <button
           type="button"
-          onClick={() => router.push('/nads')}
+          onClick={() => router.push('/nad')}
           className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
         >
           Cancel
