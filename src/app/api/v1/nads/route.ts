@@ -1,64 +1,69 @@
-import { NextResponse } from "next/server";
-import { connectDB } from "../../db";
+import { NextRequest, NextResponse } from 'next/server';
+import { connectDB } from '../../db';
 
+// GET - Listar todas as NADs
 export async function GET() {
   try {
     const { db } = await connectDB();
-    
-    const nads = await db
-      .collection('quicknads')
+
+    const nads = await db.collection('nads')
       .find({})
       .sort({ createdAt: -1 })
       .toArray();
 
-    return NextResponse.json({ nads });
+    const formattedNads = nads.map(nad => ({
+      ...nad,
+      _id: nad._id.toString(),
+      createdAt: nad.createdAt || new Date().toISOString(),
+      lastModifiedAt: nad.lastModifiedAt || nad.createdAt || new Date().toISOString(),
+      createdBy: nad.createdBy || 'dimidotdev',
+      lastModifiedBy: nad.lastModifiedBy || nad.createdBy || 'dimidotdev'
+    }));
+
+    return NextResponse.json({ 
+      success: true,
+      nads: formattedNads,
+      metadata: {
+        count: formattedNads.length,
+        timestamp: new Date().toISOString()
+      }
+    });
   } catch (error) {
     console.error('Error fetching NADs:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch NADs' },
+      { success: false, error: 'Failed to fetch NADs' },
       { status: 500 }
     );
   }
 }
 
-export async function POST(request: Request) {
+// POST - Criar nova NAD
+export async function POST(request: NextRequest) {
   try {
     const { db } = await connectDB();
-    const nadData = await request.json();
-
-    const existingNad = await db.collection('quicknads').findOne({
-      ticketId: nadData.ticketId
-    });
-
-    if (existingNad) {
-      return NextResponse.json(
-        { 
-          error: 'TicketId already exists',
-          code: 'DUPLICATE_TICKET_ID'
-        },
-        { status: 409 }
-      );
-    }
+    const data = await request.json();
 
     const newNad = {
-      ...nadData,
+      ...data,
       createdAt: new Date().toISOString(),
-      author: 'Admin'
+      lastModifiedAt: new Date().toISOString(),
+      createdBy: data.createdBy || 'dimidotdev',
+      lastModifiedBy: data.createdBy || 'dimidotdev'
     };
 
-    await db.collection('quicknads').insertOne(newNad);
-    
-    return NextResponse.json({ 
+    const result = await db.collection('nads').insertOne(newNad);
+
+    return NextResponse.json({
       success: true,
-      nad: newNad 
-    });
+      nad: {
+        ...newNad,
+        _id: result.insertedId.toString()
+      }
+    }, { status: 201 });
   } catch (error) {
     console.error('Error creating NAD:', error);
     return NextResponse.json(
-      { 
-        error: 'Failed to create NAD',
-        code: 'CREATE_ERROR'
-      },
+      { success: false, error: 'Failed to create NAD' },
       { status: 500 }
     );
   }

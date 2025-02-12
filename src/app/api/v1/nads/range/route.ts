@@ -4,14 +4,26 @@ import { connectDB } from '../../../db';
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const limit = parseInt(searchParams.get('limit') || '5');
-    
+    const startDate = searchParams.get('start');
+    const endDate = searchParams.get('end');
+
+    if (!startDate || !endDate) {
+      return NextResponse.json(
+        { success: false, error: 'Start and end dates are required' },
+        { status: 400 }
+      );
+    }
+
     const { db } = await connectDB();
 
     const nads = await db.collection('nads')
-      .find({})
+      .find({
+        createdAt: {
+          $gte: startDate,
+          $lte: endDate
+        }
+      })
       .sort({ createdAt: -1 })
-      .limit(limit)
       .toArray();
 
     const formattedNads = nads.map(nad => ({
@@ -28,14 +40,15 @@ export async function GET(request: NextRequest) {
       nads: formattedNads,
       metadata: {
         count: formattedNads.length,
-        limit,
+        startDate,
+        endDate,
         timestamp: new Date().toISOString()
       }
     });
   } catch (error) {
-    console.error('Error fetching recent NADs:', error);
+    console.error('Error fetching NADs by date range:', error);
     return NextResponse.json(
-      { success: false, error: 'Failed to fetch recent NADs' },
+      { success: false, error: 'Failed to fetch NADs by date range' },
       { status: 500 }
     );
   }

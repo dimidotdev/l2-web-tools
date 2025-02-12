@@ -1,10 +1,8 @@
 import { NextResponse } from 'next/server';
 import { connectDB } from '@/app/api/db';
 
-export async function PUT(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     const updates = await request.json();
     const { db } = await connectDB();
@@ -26,10 +24,8 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     const { db } = await connectDB();
     

@@ -65,7 +65,11 @@ export const RecentNADs = () => {
             key={nad.ticketId}
             className="bg-white rounded-lg shadow-sm p-3 border border-gray-100 hover:border-blue-200 transition-colors"
           >
-            <Link className="flex justify-between items-center" href={`/nads/${nad.ticketId}`}>
+            <Link
+              key={nad._id}
+              href={`/nads/${nad._id}`}
+              className="block hover:bg-gray-50 p-4 rounded-lg transition-colors"
+            >
               <span className="font-medium text-blue-600">
                 {nad.ticketId}
               </span>

@@ -1,0 +1,23 @@
+'use client';
+
+import { useAuth } from '../contexts/AuthContext';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+import NadSkeleton from './NADSkeleton';
+
+export default function ProtectedNadPage({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push('/login');
+    }
+  }, [isAuthenticated, router]);
+
+  if (!isAuthenticated) {
+    return <NadSkeleton />;
+  }
+
+  return <>{children}</>;
+}

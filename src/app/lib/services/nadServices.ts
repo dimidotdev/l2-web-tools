@@ -1,18 +1,11 @@
-import { connectDB } from "@/app/api/db";
-import { NAD } from "@/app/types/nad";
-import 'dotenv/config';
-interface NADError extends Error {
-  code?: string;
-}
+import { NAD } from '../../types/nad';
 
-interface GetNadsOptions {
-  page?: number;
-  itemsPerPage?: number;
-}
-
-export async function getNads({ page = 1, itemsPerPage = 12 }: GetNadsOptions = {}) {
+export async function getNads() {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/nads?page=${page}&limit=${itemsPerPage}`, {
+    const response = await fetch('/api/v1/nads', {
+      headers: {
+        'Content-Type': 'application/json',
+      },
       cache: 'no-store'
     });
 
@@ -21,35 +14,37 @@ export async function getNads({ page = 1, itemsPerPage = 12 }: GetNadsOptions = 
     }
 
     const data = await response.json();
-    return {
-      nads: data.nads || [],
-      total: data.total,
-      currentPage: page,
-      totalPages: Math.ceil((data.total || 0) / itemsPerPage)
-    };
+    return data.nads || [];
   } catch (error) {
     console.error('Error fetching NADs:', error);
-    return {
-      nads: [],
-      total: 0,
-      currentPage: 1,
-      totalPages: 0
-    };
+    return [];
+  }
+}
+
+export async function getNadById(id: string) {
+  try {
+    const response = await fetch(`/api/v1/nads/${id}`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      cache: 'no-store'
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch NAD');
+    }
+
+    const data = await response.json();
+    return data.nad;
+  } catch (error) {
+    console.error('Error fetching NAD:', error);
+    return null;
   }
 }
 
 export async function createNad(nadData: Partial<NAD>) {
   try {
-    // Primeiro, verifica se já existe uma NAD com o mesmo ticketId
-    const existingNad = await checkExistingTicketId(nadData.ticketId);
-    
-    if (existingNad) {
-      const error = new Error('TicketId já existe') as NADError;
-      error.code = 'DUPLICATE_TICKET_ID';
-      throw error;
-    }
-
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/nads`, {
+    const response = await fetch('/api/v1/nads', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -57,61 +52,86 @@ export async function createNad(nadData: Partial<NAD>) {
       body: JSON.stringify({
         ...nadData,
         createdAt: new Date().toISOString(),
-        author: 'Admin', // ou pegar do contexto de autenticação
+        createdBy: 'dimidotdev'
       }),
     });
 
     if (!response.ok) {
-      const error = new Error('Erro ao criar NAD') as NADError;
-      error.code = response.status === 409 ? 'DUPLICATE_TICKET_ID' : 'CREATE_ERROR';
-      throw error;
+      throw new Error('Failed to create NAD');
     }
 
     const data = await response.json();
-    return { success: true, nad: data.nad };
+    return data.nad;
   } catch (error) {
     console.error('Error creating NAD:', error);
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Erro desconhecido',
-      code: (error as NADError).code || 'UNKNOWN_ERROR'
-    };
+    throw error;
   }
 }
 
-async function checkExistingTicketId(ticketId?: string): Promise<boolean> {
-  if (!ticketId) return false;
-
+export async function updateNad(id: string, nadData: Partial<NAD>) {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/nads/check/${ticketId}`);
+    const response = await fetch(`/api/v1/nads/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        ...nadData,
+        lastModifiedAt: new Date().toISOString(),
+        lastModifiedBy: 'dimidotdev'
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to update NAD');
+    }
+
     const data = await response.json();
-    return data.exists;
+    return data.nad;
   } catch (error) {
-    console.error('Error checking ticketId:', error);
-    return false;
+    console.error('Error updating NAD:', error);
+    throw error;
   }
 }
 
-export async function GetNAD(ticketId: string) {
-  const { db } = await connectDB();
-  const nad = await db.collection('quicknads').findOne({ ticketId });
-  return JSON.parse(JSON.stringify(nad));
+export async function deleteNad(id: string) {
+  try {
+    const response = await fetch(`/api/v1/nads/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to delete NAD');
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error deleting NAD:', error);
+    throw error;
+  }
 }
 
-export async function getRecentNADs() {
+export async function getRecentNADs(limit: number = 5) {
   try {
-    const { db } = await connectDB();
+    const response = await fetch(`/api/v1/nads/recent?limit=${limit}`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      cache: 'no-store'
+    });
 
-    const nads = await db
-      .collection('quicknads')
-      .find({})
-      .sort({ createdAt: -1 })
-      .limit(5)
-      .toArray();
+    if (!response.ok) {
+      throw new Error('Failed to fetch recent NADs');
+    }
 
-    return { nads, error: null };
+    const data = await response.json();
+    return data.nads || [];
   } catch (error) {
-    console.error('Erro ao buscar NADs recentes:', error);
-    return { nads: [], error: 'Falha ao carregar NADs recentes' };
+    console.error('Error fetching recent NADs:', error);
+    return [];
   }
 }

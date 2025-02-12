@@ -38,3 +38,63 @@ body {
     width: 6px;
   }
 }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+.stats-card {
+  transition: transform 0.2s ease-in-out;
+}
+
+.stats-card:hover {
+  transform: translateY(-2px);
+}
+
+.suggestion-card {
+  transition: all 0.2s ease-in-out;
+}
+
+.suggestion-card:hover {
+  background-color: #f8fafc;
+  transform: scale(1.02);
+}
+
+@layer components {
+  .nav-link {
+    @apply relative overflow-hidden;
+  }
+
+  .nav-link::after {
+    @apply content-[''] absolute bottom-0 left-0 w-full h-0.5 bg-white transform scale-x-0 origin-bottom-right transition-transform duration-300 ease-out;
+  }
+
+  .nav-link:hover::after {
+    @apply transform scale-x-100 origin-bottom-left;
+  }
+
+  .nav-link.active::after {
+    @apply transform scale-x-100;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-accent-700 to-accent-900;
+  }
+
+  .border-gradient {
+    border-image: linear-gradient(to right, theme('colors.accent.700'), theme('colors.accent.900')) 1;
+  }
+
+  .sophisticated-shadow {
+    box-shadow: 
+      0 1px 3px 0 rgba(0, 0, 0, 0.1),
+      0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  }
+}

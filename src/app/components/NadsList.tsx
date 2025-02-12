@@ -1,162 +1,229 @@
 'use client';
 
-import Link from 'next/link';
-import { usePagination } from '../hooks/usePagination';
+import { useState } from 'react';
 import { NAD } from '../types/nad';
-import { formatDistanceToNow } from 'date-fns';
-import { enUS } from 'date-fns/locale';
+import Link from 'next/link';
+import { FaEdit, FaTrash, FaEye, FaExternalLinkAlt } from 'react-icons/fa';
+import { useAuth } from '../contexts/AuthContext';
+import { toast } from 'react-hot-toast';
 
-function Pagination({
-  currentPage,
-  totalPages,
-  goToPage,
-  prevPage,
-  nextPage,
-  isFirstPage,
-  isLastPage
-}: {
-  currentPage: number;
-  totalPages: number;
-  goToPage: (page: number) => void;
-  prevPage: () => void;
-  nextPage: () => void;
-  isFirstPage: boolean;
-  isLastPage: boolean;
-}) {
-  return (
-    <div className="mt-6">
-      <div className="flex justify-center items-center space-x-4">
-        <button
-          onClick={prevPage}
-          disabled={isFirstPage}
-          className={`px-4 py-2 rounded-lg border ${
-            isFirstPage 
-              ? 'opacity-50 cursor-not-allowed'
-              : 'hover:bg-gray-50'
-          }`}
-        >
-          Previous
-        </button>
-
-        <div className="flex items-center space-x-1">
-          {[...Array(totalPages)].map((_, index) => (
-            <button
-              key={index}
-              onClick={() => goToPage(index + 1)}
-              className={`px-4 py-2 border rounded-lg ${
-                currentPage === index + 1
-                  ? 'bg-blue-500 text-white'
-                  : 'hover:bg-gray-50'
-              }`}
-            >
-              {index + 1}
-            </button>
-          ))}
-        </div>
-
-        <button
-          onClick={nextPage}
-          disabled={isLastPage}
-          className={`px-4 py-2 rounded-lg border ${
-            isLastPage
-              ? 'opacity-50 cursor-not-allowed'
-              : 'hover:bg-gray-50'
-          }`}
-        >
-          Next
-        </button>
-      </div>
-    </div>
-  );
+interface NadsListProps {
+  nads: NAD[];
 }
 
-function NadGrid({ nads }: { nads: NAD[] }) {
-  const itemsPerPage = 12;
-  const {
-    currentPage,
-    totalPages,
-    nextPage,
-    prevPage,
-    goToPage,
-    startIndex,
-    endIndex,
-    isFirstPage,
-    isLastPage
-  } = usePagination({
-    totalItems: nads.length,
-    itemsPerPage,
-    initialPage: 1
-  });
+export default function NadsList({ nads }: NadsListProps) {
+  const { user } = useAuth();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortConfig, setSortConfig] = useState<{
+    key: keyof NAD;
+    direction: 'asc' | 'desc';
+  }>({ key: 'createdAt', direction: 'desc' });
 
+  // Função de ordenação
   const sortedNads = [...nads].sort((a, b) => {
-    const dateA = new Date(a.createdAt || 0).getTime();
-    const dateB = new Date(b.createdAt || 0).getTime();
-    return dateB - dateA;
+    if (a[sortConfig.key]! < b[sortConfig.key]!) {
+      return sortConfig.direction === 'asc' ? -1 : 1;
+    }
+    if (a[sortConfig.key]! > b[sortConfig.key]!) {
+      return sortConfig.direction === 'asc' ? 1 : -1;
+    }
+    return 0;
   });
 
-  const paginatedNads = sortedNads.slice(startIndex, endIndex);
+  // Função de filtragem
+  const filteredNads = sortedNads.filter(nad => 
+    nad.ticketId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    nad.customerName?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-  const formatCreatedAt = (dateString?: string) => {
-    if (!dateString) return 'Date not available';
+  // Função para mudar a ordenação
+  const requestSort = (key: keyof NAD) => {
+    setSortConfig(current => ({
+      key,
+      direction: current.key === key && current.direction === 'asc' ? 'desc' : 'asc',
+    }));
+  };
 
+  // Função para formatar data
+  const formatDate = (dateString: string) => {
     try {
       const date = new Date(dateString);
-      if (isNaN(date.getTime())) return 'Invalid date';
-
-      return formatDistanceToNow(date, {
-        addSuffix: true,
-        locale: enUS,
+      return date.toLocaleString('pt-BR', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
       });
     } catch (error) {
-      console.error('Error formatting date:', dateString, error);
-      return 'Date unavailable';
+      return dateString;
     }
   };
 
-  if (nads.length === 0) {
-    return (
-      <div className="w-full text-center p-4">
-        <p className="text-gray-500">No NAD found.</p>
-      </div>
-    );
-  }
+  // Função para abrir NAD em nova aba
+  const handleViewNad = (targetUrl: string) => {
+    if (!targetUrl) {
+      toast.error('URL not available');
+      return;
+    }
+    window.open(targetUrl, '_blank', 'noopener,noreferrer');
+  };
+
+  // Função para deletar NAD
+  const handleDeleteNad = async (id: string) => {
+    if (!window.confirm('Are you sure you want to delete this NAD?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/v1/nads/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete NAD');
+      }
+
+      toast.success('NAD deleted successfully');
+      // Recarregar a página ou atualizar a lista
+      window.location.reload();
+    } catch (error) {
+      console.error('Error deleting NAD:', error);
+      toast.error('Failed to delete NAD');
+    }
+  };
 
   return (
-    <>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-        {paginatedNads.map((nad: NAD) => (
-          <Link 
-            href={`${process.env.NEXT_PUBLIC_URL}/nads/${nad.ticketId}`} 
-            key={nad.ticketId} 
-            className="p-4 border bg-gray-100 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer transform hover:-translate-y-1"
+    <div className="container mx-auto px-4">
+      {/* Barra de pesquisa e botões */}
+      <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+        <div className="w-full md:w-1/3">
+          <input
+            type="text"
+            placeholder="Search by Ticket ID or Customer..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <div className="flex gap-4">
+          <Link
+            href="/nads/new"
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
           >
-            <h3 className="font-bold text-gray-800">{nad.ticketId}</h3>
-            <p className="text-sm text-gray-600">{nad.customerName}</p>
-            <p className="text-blue-500 hover:text-blue-600 truncate">
-              {nad.targetUrl}
-            </p>
-            <div className="text-sm text-gray-500">
-              Created {formatCreatedAt(nad.createdAt)}
-            </div>
+            New NAD
           </Link>
-        ))}
+        </div>
       </div>
 
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        goToPage={goToPage}
-        prevPage={prevPage}
-        nextPage={nextPage}
-        isFirstPage={isFirstPage}
-        isLastPage={isLastPage}
-      />
-
-      <div className="text-center text-sm text-gray-500 mt-4">
-        Showing {startIndex + 1} to {Math.min(endIndex, nads.length)} of {nads.length} NADs
+      {/* Tabela de NADs */}
+      <div className="overflow-x-auto bg-white rounded-lg shadow">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th
+                onClick={() => requestSort('ticketId')}
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+              >
+                Ticket ID
+              </th>
+              <th
+                onClick={() => requestSort('customerName')}
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+              >
+                Customer
+              </th>
+              <th
+                onClick={() => requestSort('createdAt')}
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+              >
+                Created At
+              </th>
+              <th
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
+                Created By
+              </th>
+              <th
+                className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {filteredNads.map((nad) => (
+              <tr
+                key={nad._id}
+                className="hover:bg-gray-50 transition-colors"
+              >
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="text-sm font-medium text-gray-900">
+                    {nad.ticketId}
+                  </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="text-sm text-gray-900">
+                    {nad.customerName}
+                  </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="text-sm text-gray-500">
+                    {formatDate(nad.createdAt!)}
+                  </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="text-sm text-gray-500">
+                    {nad.createdBy || user?.username || 'dimidotdev'}
+                  </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => handleViewNad(nad.targetUrl)}
+                  className="text-green-600 hover:text-green-900"
+                  title="View NAD"
+                >
+                  <FaExternalLinkAlt className="h-5 w-5" />
+                </button>
+                
+                <Link
+                  href={`/nads/${nad._id}`}
+                  className="text-blue-600 hover:text-blue-900"
+                  title="View Details"
+                >
+                  <FaEye className="h-5 w-5" />
+                </Link>
+                
+                <Link
+                  href={`/nads/${nad._id}/edit`}
+                  className="text-indigo-600 hover:text-indigo-900"
+                  title="Edit"
+                >
+                  <FaEdit className="h-5 w-5" />
+                </Link>
+                
+                <button
+                  onClick={() => handleDeleteNad(nad._id)}
+                  className="text-red-600 hover:text-red-900"
+                  title="Delete"
+                >
+                  <FaTrash className="h-5 w-5" />
+                </button>
+              </div>
+            </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
-    </>
+
+      {/* Mensagem quando não há NADs */}
+      {filteredNads.length === 0 && (
+        <div className="text-center py-8">
+          <p className="text-gray-500">No NADs found</p>
+        </div>
+      )}
+    </div>
   );
 }
-
-export default NadGrid;
