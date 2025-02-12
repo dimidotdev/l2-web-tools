@@ -698,34 +698,6 @@ export default function CreateNadForm() {
           <section className="bg-white rounded-lg shadow-sm p-6">
             <h2 className="text-xl font-bold text-accent-800 mb-6">Final Analysis</h2>
             <div className="grid grid-cols-1 gap-6">
-              {/* System Info - Read Only */}
-              <div className="bg-primary-50 p-4 rounded-lg mb-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-accent-700 mb-1">
-                      Created At (UTC)
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.createdAt}
-                      disabled
-                      className="w-full rounded-md border-primary-300 bg-primary-100 text-accent-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-accent-700 mb-1">
-                      Created By
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.createdBy}
-                      disabled
-                      className="w-full rounded-md border-primary-300 bg-primary-100 text-accent-500"
-                    />
-                  </div>
-                </div>
-              </div>
-
               {/* NAD Solved Status */}
               <div>
                 <label className="block text-sm font-medium text-accent-700 mb-1">
