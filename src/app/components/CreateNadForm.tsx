@@ -3,8 +3,10 @@
 import { useState } from 'react';
 import { NAD } from '../types/nad';
 import { toast } from 'react-hot-toast';
+import { useRouter } from 'next/navigation';
 
 export default function CreateNadForm() {
+  const router = useRouter();
   const [formData, setFormData] = useState<Partial<NAD>>({
     createdAt: "2025-02-12 03:48:25",
     createdBy: "dimidotdev",
@@ -50,9 +52,8 @@ export default function CreateNadForm() {
 
       if (!response.ok) throw new Error('Failed to create NAD');
 
-      const data = await response.json();
       toast.success('NAD created successfully');
-      window.location.href = `/nad/${data.nad.id}`;
+      router.push('/nad');
     } catch (error) {
       console.error('Error creating NAD:', error);
       toast.error('Failed to create NAD');
